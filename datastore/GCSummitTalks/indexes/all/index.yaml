@@ -1,0 +1,8 @@
+indexes:
+
+- kind: GCSummitTalks
+  ancestor: no
+  properties:
+  - name: roomName
+  - name: scheduledStartTime
+    direction: asc

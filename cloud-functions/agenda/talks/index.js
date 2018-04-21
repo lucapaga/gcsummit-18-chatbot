@@ -51,23 +51,57 @@ function getKeyFromRequestData (requestData) {
  */
 function retrieveRoomName (reqBody) {
   try {
-    console.log(reqBody.queryResult);
-    console.log(reqBody.queryResult.parameters);
-    console.log(reqBody.queryResult.allRequiredParamsPresent);
-    console.log(reqBody.queryResult.parameters["roomName"]);
+    console.log("reqBody", reqBody);
   } catch (e) {
+    console.warn(e);
   } finally {
   }
 
-  if (reqBody.queryResult
-        && reqBody.queryResult.parameters
-        && reqBody.queryResult.parameters.length > 0
-        && reqBody.queryResult.allRequiredParamsPresent == true) {
-    console.log(reqBody.queryResult.parameters["roomName"]);
-    return reqBody.queryResult.parameters["roomName"];
+  try {
+    console.log("queryResult", reqBody.queryResult);
+  } catch (e) {
+    console.warn(e);
+  } finally {
   }
-  else if (reqBody.room) {
-    return reqBody.room;
+
+  try {
+    console.log("parameters", reqBody.queryResult.parameters);
+  } catch (e) {
+    console.warn(e);
+  } finally {
+  }
+
+  try {
+    console.log("allRequiredParamsPresent", reqBody.queryResult.allRequiredParamsPresent);
+  } catch (e) {
+    console.warn(e);
+  } finally {
+  }
+
+  try {
+    console.log("param[roomName]", reqBody.queryResult.parameters["roomName"]);
+  } catch (e) {
+    console.warn(e);
+  } finally {
+  }
+
+  try {
+    if (reqBody.queryResult != null
+          && reqBody.queryResult.parameters != null
+          && reqBody.queryResult.parameters["roomName"] != null
+          && reqBody.queryResult.allRequiredParamsPresent == true) {
+      console.log("Ok. Here we go with room name: " + reqBody.queryResult.parameters["roomName"]);
+      return reqBody.queryResult.parameters["roomName"];
+    }
+    else if (reqBody.room) {
+      return reqBody.room;
+    }
+  } catch (e) {
+    console.warn(e);
+    if (reqBody.room) {
+      return reqBody.room;
+    }
+  } finally {
   }
 
   return null;
@@ -85,21 +119,30 @@ function retrieveRoomName (reqBody) {
  * @param {string} req.body.room The room name
  * @param {object} res Cloud Function response context.
  */
-exports.dffCurrentTalkAtRoom = (req, res) => {
+exports.gcs18DFCFCurrentTalkAtRoom = (req, res) => {
+  console.log("Request: ", req);
+
   const roomName = retrieveRoomName(req.body);
+
   console.log("Listing Current Talk for Room: '" + roomName + "' ...");
   const query = datastore
                   .createQuery(talksEntity)
                   .filter('roomName', '=', roomName)
                   .order('scheduledStartTime');
 
+  console.log("submitting DataStore query ...");
   datastore
     .runQuery(query)
     .then(results => {
+      console.log("Query Result: ", results);
+
       const talks = results[0];
+      console.log("Talks: ", talks);
+
       var cbMessage = "";
 
       if(talks.length <= 0) {
+        console.log("Empty talks list");
         cbMessage = "Non ci sono ulteriori talk in " + roomName;
       }
 
